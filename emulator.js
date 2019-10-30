@@ -1,3 +1,7 @@
+/**
+ * Provides emulateInput function which simulates Javascript events
+ * like it usually does when user interacts with an input
+ */
 (function(window) {
   "use strict";
 
@@ -127,6 +131,7 @@
     }))
     await new Promise(r => setTimeout(r))
   }
+
   async function triggerBlur(el) {
     el.dispatchEvent(new FocusEvent('blur', {
       view: window,
@@ -136,6 +141,11 @@
     await new Promise(r => setTimeout(r))
   }
 
+  /**
+   * simulate user keystrokes as events for each key: 'keydown', 'keypress', 'input', 'keyup'
+   * and finally emit 'change' and 'blur' events
+   * it's implemented like it does in Chrome Version 77
+   */
   async function emulateTextInput(el, text, options = {}) {
     el.value = options.inputMask || ''
     for (var i = 0; i < text.length; i++) {
@@ -148,6 +158,10 @@
     await triggerBlur(el)
   }
 
+  /**
+   * simulate checkbox value change
+   * emits 'input' and 'change' events
+   */
   async function emulateChange(el, checked) {
     const lastValue = el.checked
     el.checked = checked
