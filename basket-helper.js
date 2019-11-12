@@ -5,6 +5,10 @@
     return document.evaluate(path, document, null, XPathResult.FIRST_ORDERED_NODE_TYPE, null).singleNodeValue;
   }
 
+  function getCardInput() {
+    return document.querySelector('[placeholder="Номер с обратной стороны карты"]')
+  }
+
   function getNameInput() {
     const nameLabel = getElementByXpath('//label[text()="Имя заказчика *"]')
     if (!nameLabel || !nameLabel.nextElementSibling) {
@@ -34,8 +38,21 @@
       chrome.storage.sync.get({
         name: '',
         phone: '',
+        card: '',
       }, resolve)
     })
+  }
+
+  async function fillCardInfo() {
+    const cardInput = getCardInput()
+    if (cardInput && !cardInput.value) {
+      const userOptions = await getUserOptions()
+      if (userOptions.card) {
+        // format card number to make it appropriate
+        const card = userOptions.card.replace(/\D/g, '').replace(/(.{4})/g," $1").trim()
+        await window.emulateInput(cardInput, card, { inputMask: ' '.repeat(19) })
+      }
+    }
   }
 
   async function fillContactInfo() {
@@ -58,7 +75,7 @@
 
     if (userOptions.phone) {
       // replace all non-digit and retrieve only 10 digits
-      const phone = userOptions.phone.replace(/\D|/g, '').slice(-10)
+      const phone = userOptions.phone.replace(/\D/g, '').slice(-10)
       await window.emulateInput(phoneInput, phone, { inputMask: '+7 ___ ___-__-__', maskSymbol: '_' })
     }
 
@@ -76,6 +93,7 @@
   const timerId = setInterval(async () => {
     const nameInput = getNameInput()
     if (!nameInput) {
+      await fillCardInfo()
       return
     }
 

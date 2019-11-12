@@ -79,7 +79,13 @@
 
     const lastValue = el.value
     if (options.inputMask) {
-      el.value = el.value.replace(options.maskSymbol, key)
+      if (options.maskSymbol) { // replace next mask symbol
+        el.value = el.value.replace(options.maskSymbol, key)
+      } else { // replace symbol at specified position
+        const valueLetters = el.value.split('')
+        valueLetters[options.index] = key
+        el.value = valueLetters.join('')
+      }
     } else {
       el.value += key
     }
@@ -132,6 +138,14 @@
     await new Promise(r => setTimeout(r))
   }
 
+  async function triggerFocus(el) {
+    el.dispatchEvent(new FocusEvent('focus', {
+      view: window,
+      composed: true,
+    }))
+    await new Promise(r => setTimeout(r, 20))
+  }
+
   async function triggerBlur(el) {
     el.dispatchEvent(new FocusEvent('blur', {
       view: window,
@@ -147,10 +161,14 @@
    * it's implemented like it does in Chrome Version 77
    */
   async function emulateTextInput(el, text, options = {}) {
+    // somehow 'focus' event breaks interaction with react element on detmir.ru
+    // TODO: research and fix
+    // triggerFocus(el)
     el.value = options.inputMask || ''
+
     for (var i = 0; i < text.length; i++) {
       const key = text[i]
-      await emulateLetterInput(el, key, options)
+      await emulateLetterInput(el, key, { ...options, index: i })
       await new Promise(r => setTimeout(r, 10))
     }
 
