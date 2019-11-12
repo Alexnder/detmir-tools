@@ -1,19 +1,18 @@
+const optionNames = ['name', 'phone', 'card']
+const initialOptions = optionNames.reduce((acc, o) => { acc[o] = ''; return acc }, {})
+
 function saveOptions() {
-  chrome.storage.sync.get({
-    name: '',
-    phone: '',
-  }, data => {
-    const name = document.getElementById('name').value
-    const phone = document.getElementById('phone').value
+  chrome.storage.sync.get(initialOptions, storedOptions => {
+    const options = optionNames.reduce((acc, name) => {
+      acc[name] = document.getElementById(name).value
+      return acc
+    }, {})
     // do not save the same values
-    if (name == data.name && phone == data.phone) {
+    if (optionNames.every(name => options[name] == storedOptions[name])) {
       return
     }
 
-    chrome.storage.sync.set({
-      name,
-      phone,
-    }, () => {
+    chrome.storage.sync.set(options, () => {
       chrome.runtime.sendMessage({
         msg: 'options-updated',
       })
@@ -33,19 +32,13 @@ function deferSave() {
 }
 
 function restoreOptions() {
-  chrome.storage.sync.get({
-    name: '',
-    phone: '',
-  }, data => {
-    const name = document.getElementById('name')
-    name.value = data.name
-    name.addEventListener('input', deferSave)
-    name.addEventListener('change', deferSave)
-
-    const phone = document.getElementById('phone')
-    phone.value = data.phone
-    phone.addEventListener('input', deferSave)
-    phone.addEventListener('change', deferSave)
+  chrome.storage.sync.get(initialOptions, storedOptions => {
+    for (let name in storedOptions) {
+      const input = document.getElementById(name)
+      input.value = storedOptions[name]
+      input.addEventListener('input', deferSave)
+      input.addEventListener('change', deferSave)
+    }
   })
 }
 
