@@ -25,6 +25,14 @@
     return phoneLabel.nextElementSibling
   }
 
+  function getEmailInput() {
+    const phoneLabel = getElementByXpath('//label[text()="Адрес электронной почты *"]')
+    if (!phoneLabel || !phoneLabel.nextElementSibling) {
+      return
+    }
+    return phoneLabel.nextElementSibling
+  }
+
   function getSubscriptionInput() {
     const subscriptionLabel = getElementByXpath('//div[text()="Подписаться на рассылку"]')
     if (!subscriptionLabel || !subscriptionLabel.parentNode.previousElementSibling) {
@@ -39,6 +47,7 @@
         name: '',
         phone: '',
         card: '',
+        email: '',
       }, resolve)
     })
   }
@@ -77,6 +86,11 @@
       // replace all non-digit and retrieve only 10 digits
       const phone = userOptions.phone.replace(/\D/g, '').slice(-10)
       await window.emulateInput(phoneInput, phone, { inputMask: '+7 ___ ___-__-__', maskSymbol: '_' })
+    }
+
+    const emailInput = getEmailInput()
+    if (userOptions.email) {
+      await window.emulateInput(emailInput, userOptions.email)
     }
 
     const subscriptionInput = getSubscriptionInput()

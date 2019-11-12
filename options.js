@@ -1,4 +1,4 @@
-const optionNames = ['name', 'phone', 'card']
+const optionNames = ['name', 'phone', 'card', 'email']
 const initialOptions = optionNames.reduce((acc, o) => { acc[o] = ''; return acc }, {})
 
 function saveOptions() {
