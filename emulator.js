@@ -34,7 +34,7 @@
       console.log('cannot found', code)
     }
     const keyCode = key.charCodeAt()
-    const shiftKey = key == key.toUpperCase()
+    const shiftKey = /\D/.test(key) && key == key.toUpperCase()
 
     if (shiftKey) {
       el.dispatchEvent(new KeyboardEvent('keydown', {
