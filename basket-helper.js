@@ -59,7 +59,7 @@
       if (userOptions.card) {
         // format card number to make it appropriate
         const card = userOptions.card.replace(/\D/g, '').replace(/(.{4})/g," $1").trim()
-        await window.emulateInput(cardInput, card, { inputMask: ' '.repeat(19) })
+        await window.emulateInput(cardInput, card, { inputMask: ' '.repeat(19), ignoreMaskSymbol: ' ' })
       }
     }
   }

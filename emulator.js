@@ -168,6 +168,9 @@
 
     for (var i = 0; i < text.length; i++) {
       const key = text[i]
+      if (key == options.ignoreMaskSymbol) {
+        continue
+      }
       await emulateLetterInput(el, key, { ...options, index: i })
       await new Promise(r => setTimeout(r, 10))
     }
