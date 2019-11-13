@@ -5,6 +5,16 @@
 (function(window) {
   "use strict";
 
+  // copied from facebook/react
+  const setUntrackedValue = Object.getOwnPropertyDescriptor(
+    HTMLInputElement.prototype,
+    'value',
+  ).set;
+  const setUntrackedChecked = Object.getOwnPropertyDescriptor(
+    HTMLInputElement.prototype,
+    'checked',
+  ).set;
+
   const rusLayoutMap = {
     "q":"й","w":"ц","e":"у","r":"к","t":"е","y":"н","u":"г","i":"ш","o":"щ",
     "p":"з","[":"х","{":"Х","]":"ъ","}":"Ъ","|":"/","`":"ё","~":"Ё","a":"ф",
@@ -77,21 +87,18 @@
     }))
     await new Promise(r => setTimeout(r))
 
-    const lastValue = el.value
     if (options.inputMask) {
       if (options.maskSymbol) { // replace next mask symbol
-        el.value = el.value.replace(options.maskSymbol, key)
+        setUntrackedValue.call(el, el.value.replace(options.maskSymbol, key))
       } else { // replace symbol at specified position
         const valueLetters = el.value.split('')
         valueLetters[options.index] = key
-        el.value = valueLetters.join('')
+        setUntrackedValue.call(el, valueLetters.join(''))
       }
     } else {
-      el.value += key
+      setUntrackedValue.call(el, el.value + key)
     }
-    if (el._valueTracker) {
-      el._valueTracker.setValue(lastValue)
-    }
+
     el.dispatchEvent(new InputEvent('input', {
       bubbles: true,
       cancelable: false,
@@ -184,11 +191,12 @@
    * emits 'input' and 'change' events
    */
   async function emulateChange(el, checked) {
-    const lastValue = el.checked
-    el.checked = checked
-    if (el._valueTracker) {
-      el._valueTracker.setValue(lastValue.toString())
-    }
+    setUntrackedChecked.call(el, checked)
+    el.dispatchEvent(new Event('click', {
+      bubbles: true,
+      cancelable: true,
+      composed: true,
+    }))
     el.dispatchEvent(new Event('input', {
       bubbles: true,
       cancelable: false,
