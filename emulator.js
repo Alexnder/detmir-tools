@@ -168,10 +168,10 @@
    * it's implemented like it does in Chrome Version 77
    */
   async function emulateTextInput(el, text, options = {}) {
-    // somehow 'focus' event breaks interaction with react element on detmir.ru
-    // TODO: research and fix
-    // triggerFocus(el)
-    el.value = options.inputMask || ''
+    setUntrackedValue.call(el, options.inputMask || '') // reset value
+    // at the moment react ignore value changes on focused inputs with masks
+    // el.focus()
+    // await triggerFocus(el)
 
     for (var i = 0; i < text.length; i++) {
       const key = text[i]
